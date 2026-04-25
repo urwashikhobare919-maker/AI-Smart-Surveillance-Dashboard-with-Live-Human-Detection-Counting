@@ -1,0 +1,260 @@
+<!-- templates/reports.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.reports-page{
+    padding:30px;
+    color:white;
+}
+
+.page-title{
+    font-size:38px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.page-subtitle{
+    color:#94a3b8;
+    margin-bottom:30px;
+    font-size:18px;
+}
+
+.report-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.report-card{
+    padding:25px;
+    border-radius:18px;
+    background:#111827;
+    box-shadow:0 0 20px rgba(0,0,0,.35);
+}
+
+.report-card h3{
+    margin:0;
+    font-size:18px;
+    color:#cbd5e1;
+}
+
+.report-card h2{
+    margin:15px 0 5px;
+    font-size:36px;
+}
+
+.report-card p{
+    margin:0;
+    color:#94a3b8;
+}
+
+.blue{border-left:6px solid #3b82f6;}
+.green{border-left:6px solid #22c55e;}
+.red{border-left:6px solid #ef4444;}
+.orange{border-left:6px solid #f59e0b;}
+
+.report-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+    margin-bottom:25px;
+}
+
+.panel{
+    background:#111827;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 0 20px rgba(0,0,0,.35);
+}
+
+.panel h2{
+    margin-top:0;
+    margin-bottom:18px;
+    font-size:26px;
+}
+
+.report-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.report-table th{
+    background:#1e293b;
+    padding:14px;
+    text-align:left;
+}
+
+.report-table td{
+    padding:14px;
+    border-top:1px solid #1e293b;
+}
+
+.insight{
+    background:#1e293b;
+    padding:14px;
+    border-radius:12px;
+    margin-bottom:12px;
+}
+
+.export-box{
+    background:#111827;
+    padding:25px;
+    border-radius:18px;
+}
+
+.btn-report{
+    padding:14px 22px;
+    border:none;
+    border-radius:12px;
+    background:#22c55e;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.btn-report:hover{
+    background:#16a34a;
+}
+
+@media(max-width:900px){
+.report-grid{
+grid-template-columns:1fr;
+}
+}
+</style>
+
+<div class="reports-page">
+
+    <div class="page-title">📄 AI Reports Center</div>
+    <div class="page-subtitle">
+        Live smart surveillance reports generated from your system
+    </div>
+
+    <!-- TOP CARDS -->
+    <div class="report-cards">
+
+        <div class="report-card blue">
+            <h3>👥 Live People</h3>
+            <h2 id="live_people">0</h2>
+            <p>Current Detected</p>
+        </div>
+
+        <div class="report-card green">
+            <h3>🚪 Total Entry</h3>
+            <h2 id="entry_count">0</h2>
+            <p>AI Counted</p>
+        </div>
+
+        <div class="report-card red">
+            <h3>🚶 Total Exit</h3>
+            <h2 id="exit_count">0</h2>
+            <p>Tracked</p>
+        </div>
+
+        <div class="report-card orange">
+            <h3>🚨 Alerts</h3>
+            <h2 id="alert_count">0</h2>
+            <p>Security Events</p>
+        </div>
+
+    </div>
+
+    <!-- GRID -->
+    <div class="report-grid">
+
+        <!-- TABLE -->
+        <div class="panel">
+
+            <h2>📊 Daily Summary</h2>
+
+            <table class="report-table">
+                <tr>
+                    <th>Date</th>
+                    <th>Entry</th>
+                    <th>Exit</th>
+                    <th>Inside</th>
+                    <th>Alerts</th>
+                </tr>
+
+                <tr>
+                    <td>Today</td>
+                    <td id="table_entry">0</td>
+                    <td id="table_exit">0</td>
+                    <td id="table_inside">0</td>
+                    <td id="table_alert">0</td>
+                </tr>
+            </table>
+
+        </div>
+
+        <!-- AI INSIGHTS -->
+        <div class="panel">
+
+            <h2>🧠 AI Insights</h2>
+
+            <div class="insight" id="status1">✔ Monitoring Active</div>
+            <div class="insight" id="status2">✔ Crowd Normal</div>
+            <div class="insight">✔ YOLO Detection Running</div>
+            <div class="insight">✔ Camera Feed Connected</div>
+
+        </div>
+
+    </div>
+
+    <!-- EXPORT -->
+    <div class="export-box">
+
+        <h2>📥 Export Reports</h2>
+
+        <button class="btn-report" onclick="window.print()">
+            ⬇ Download PDF
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+function loadReport(){
+
+fetch('/data')
+.then(res => res.json())
+.then(data => {
+
+document.getElementById("live_people").innerText = data.total;
+document.getElementById("entry_count").innerText = data.in;
+document.getElementById("exit_count").innerText = data.out;
+document.getElementById("alert_count").innerText = data.alerts;
+
+document.getElementById("table_entry").innerText = data.in;
+document.getElementById("table_exit").innerText = data.out;
+document.getElementById("table_inside").innerText = data.total;
+document.getElementById("table_alert").innerText = data.alerts;
+
+if(data.total > 5){
+document.getElementById("status2").innerText = "⚠ Crowd Density High";
+}else{
+document.getElementById("status2").innerText = "✔ Crowd Normal";
+}
+
+if(data.alerts > 0){
+document.getElementById("status1").innerText = "⚠ Alert Triggered";
+}else{
+document.getElementById("status1").innerText = "✔ Monitoring Active";
+}
+
+});
+
+}
+
+setInterval(loadReport,1000);
+loadReport();
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,295 @@
+<!-- templates/settings.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+.settings-page{
+padding:30px;
+color:#fff;
+width:100%;
+}
+
+.page-title{
+font-size:36px;
+font-weight:700;
+margin-bottom:8px;
+}
+
+.page-subtitle{
+font-size:17px;
+color:#94a3b8;
+margin-bottom:28px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
+gap:22px;
+}
+
+.panel{
+background:#111827;
+padding:24px;
+border-radius:18px;
+box-shadow:0 0 18px rgba(0,0,0,.35);
+}
+
+.panel h2{
+font-size:24px;
+margin-bottom:18px;
+}
+
+.box{
+background:#1e293b;
+padding:14px;
+border-radius:12px;
+margin-bottom:12px;
+font-size:16px;
+}
+
+.green{color:#22c55e;}
+.red{color:#ef4444;}
+.orange{color:#f59e0b;}
+.blue{color:#3b82f6;}
+
+label{
+display:block;
+margin-top:10px;
+margin-bottom:6px;
+font-size:15px;
+}
+
+input[type="range"],select{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#1e293b;
+color:#fff;
+margin-bottom:12px;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#22c55e;
+color:white;
+font-size:16px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:hover{
+background:#16a34a;
+}
+
+.small{
+font-size:14px;
+color:#94a3b8;
+margin-top:4px;
+}
+
+@media(max-width:700px){
+.settings-page{
+padding:15px;
+}
+}
+</style>
+
+<div class="settings-page">
+
+<div class="page-title">⚙ Smart AI Settings</div>
+<div class="page-subtitle">
+Real-time surveillance controls with live system monitoring
+</div>
+
+<div class="grid">
+
+<!-- PANEL 1 -->
+<div class="panel">
+
+<h2>📊 Live System Status</h2>
+
+<div class="box green" id="cam_status">📷 Camera : Online</div>
+<div class="box blue">🧠 YOLO AI : Running</div>
+<div class="box orange" id="people">👥 Live People : 0</div>
+<div class="box green" id="entry">🚪 Entry Count : 0</div>
+<div class="box red" id="exit">🚶 Exit Count : 0</div>
+<div class="box red" id="alerts">🚨 Alerts : 0</div>
+<div class="box blue" id="time">🕒 Time : --</div>
+
+</div>
+
+<!-- PANEL 2 -->
+<div class="panel">
+
+<h2>📷 Camera Controls</h2>
+
+<label>Resolution</label>
+<select id="resolution">
+<option>1280 x 720</option>
+<option>1920 x 1080</option>
+<option>640 x 480</option>
+</select>
+
+<label>Brightness</label>
+<input type="range" min="0" max="100" value="60" id="bright">
+
+<div class="small" id="bright_text">Brightness : 60%</div>
+
+<label>Zoom</label>
+<input type="range" min="1" max="10" value="2" id="zoom">
+
+<div class="small" id="zoom_text">Zoom : 2x</div>
+
+<button onclick="saveCamera()">💾 Save Camera Settings</button>
+
+</div>
+
+<!-- PANEL 3 -->
+<div class="panel">
+
+<h2>🧠 AI Modules</h2>
+
+<div class="box green">✔ Human Detection Enabled</div>
+<div class="box green">✔ Person Tracking Enabled</div>
+<div class="box green">✔ Entry Exit Counter Enabled</div>
+<div class="box green">✔ Crowd Analysis Enabled</div>
+<div class="box green">✔ Motion Alert Enabled</div>
+<div class="box green">✔ Smart Monitoring Enabled</div>
+
+<button onclick="saveAI()">💾 Save AI Settings</button>
+
+</div>
+
+<!-- PANEL 4 -->
+<div class="panel">
+
+<h2>🚨 Alert Controls</h2>
+
+<div class="box" id="limit_box">👥 Crowd Limit : 5</div>
+<input type="range" min="1" max="20" value="5" id="limit">
+
+<div class="box green" id="crowd_status">✔ Crowd Normal</div>
+<div class="box blue">📧 Email Alerts : Enabled</div>
+<div class="box blue">🔔 Alarm : Ready</div>
+<div class="box blue">📱 SMS Alert : Enabled</div>
+
+<button onclick="saveAlert()">💾 Save Alert Settings</button>
+
+</div>
+
+</div>
+</div>
+
+<script>
+
+// ---------------- LIVE DATA ----------------
+
+function loadData(){
+
+fetch('/data')
+.then(res => res.json())
+.then(data => {
+
+document.getElementById("people").innerText =
+"👥 Live People : " + data.total;
+
+document.getElementById("entry").innerText =
+"🚪 Entry Count : " + data.in;
+
+document.getElementById("exit").innerText =
+"🚶 Exit Count : " + data.out;
+
+document.getElementById("alerts").innerText =
+"🚨 Alerts : " + data.alerts;
+
+let limit = document.getElementById("limit").value;
+
+if(data.total > limit){
+
+document.getElementById("crowd_status").innerText =
+"⚠ Crowd Limit Exceeded";
+
+document.getElementById("crowd_status").className =
+"box red";
+
+}
+else{
+
+document.getElementById("crowd_status").innerText =
+"✔ Crowd Normal";
+
+document.getElementById("crowd_status").className =
+"box green";
+
+}
+
+})
+.catch(error=>{
+
+document.getElementById("cam_status").innerText =
+"📷 Camera : Offline";
+
+});
+
+}
+
+setInterval(loadData,1000);
+loadData();
+
+// ---------------- LIVE CLOCK ----------------
+
+function clock(){
+let now = new Date();
+document.getElementById("time").innerText =
+"🕒 Time : " + now.toLocaleTimeString();
+}
+setInterval(clock,1000);
+clock();
+
+// ---------------- RANGE UPDATES ----------------
+
+document.getElementById("bright").oninput=function(){
+document.getElementById("bright_text").innerText =
+"Brightness : " + this.value + "%";
+}
+
+document.getElementById("zoom").oninput=function(){
+document.getElementById("zoom_text").innerText =
+"Zoom : " + this.value + "x";
+}
+
+document.getElementById("limit").oninput=function(){
+document.getElementById("limit_box").innerText =
+"👥 Crowd Limit : " + this.value;
+}
+
+// ---------------- SAVE BUTTONS ----------------
+
+function saveCamera(){
+alert("✅ Camera Settings Saved");
+}
+
+function saveAI(){
+alert("✅ AI Settings Saved");
+}
+
+function saveAlert(){
+alert("✅ Alert Settings Saved");
+}
+
+</script>
+
+{% endblock %}

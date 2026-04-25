@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Vision Pro</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="brand">🤖 AI Vision Pro</div>
+    <div class="sub-brand">Human Detection System</div>
+
+    <div class="menu">
+        <a href="/">📊 Dashboard</a>
+        <a href="/analytics">📈 Analytics</a>
+        <a href="/camera">📷 Camera</a>
+        <a href="/alerts">🚨 Alerts</a>
+        <a href="/reports">📄 Reports</a>
+        <a href="/settings">⚙ Settings</a>
+        
+    </div>
+</div>
+
+<div class="main">
+
+<div class="topbar">
+    <div>
+        <h1>🚀 AI Smart Monitoring Dashboard</h1>
+        <p>Enterprise Real-Time Surveillance & Analytics</p>
+    </div>
+
+    <div class="status-live">● LIVE SYSTEM</div>
+</div>
+
+{% block content %}{% endblock %}
+
+</div>
+
+</body>
+</html>
